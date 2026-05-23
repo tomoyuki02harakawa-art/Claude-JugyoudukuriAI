@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>授業のヒントを見つけよう | AI熟議パートナー</title>
+    <meta name="description" content="特別支援教育の授業づくりをサポートするAI熟議パートナー。学習指導要領に基づいた4ステップの対話で授業案を一緒に考えます。">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.anthropic.com;">
+    <link rel="stylesheet" href="style.css">
+    <!-- Material Icons from Google CDN -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="main-wrapper">
+        <div class="app-container">
+            <header class="main-header">
+                <div class="logo-container">
+                    <div class="logo-icon">🌱</div>
+                    <h1>授業の疑問質問を<span>AI</span>にぶつけてみよう！</h1>
+                </div>
+                <p class="subtitle">〜考えるヒントはあるかな〜</p>
+                <button id="settings-btn" class="header-settings-btn" aria-label="設定を開く">
+                    <span class="material-icons">settings</span>
+                </button>
+            </header>
+
+            <main class="content-area">
+                <section id="questionnaire-section" class="card fade-in">
+                    <div class="card-header">
+                        <h2>授業づくりのヒントを見つけよう</h2>
+                        <div id="api-key-warning" class="warning-message hidden">
+                            ⚠️ APIキーが設定されていません。右上の歯車アイコンからAPIキーを入力してください。
+                        </div>
+                    </div>
+                    
+                    <form id="lesson-form" class="questionnaire-form">
+                        <div class="form-group slide-up" style="--delay: 0.1s; text-align: center; margin: 0 auto 20px auto; width: 90%; max-width: 800px;">
+                            <label for="student-year" style="font-size: 1.2em; padding-bottom: 10px;">学年</label>
+                            <input type="text" id="student-year" name="student_year" placeholder="例：中学部2年" required
+                                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; box-sizing: border-box; margin-bottom: 20px;">
+                        </div>
+
+                        <div class="form-group slide-up" style="--delay: 0.2s; text-align: center; margin: 0 auto 20px auto; width: 90%; max-width: 800px;">
+                            <label for="student-stage" style="font-size: 1.2em; padding-bottom: 10px;">発達の段階の目安</label>
+                            <select id="student-stage" name="student_stage" required
+                                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; box-sizing: border-box; margin-bottom: 20px;">
+                                <option value="" disabled selected>選択してください</option>
+                                <option value="小学部1段階">小学部１</option>
+                                <option value="小学部2段階">小学部２</option>
+                                <option value="小学部3段階">小学部３</option>
+                                <option value="中学部1段階">中学部１</option>
+                                <option value="中学部2段階">中学部２</option>
+                                <option value="高等部1段階">高等部１</option>
+                                <option value="高等部2段階">高等部２</option>
+                                <option value="その他">それ以外</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group slide-up" style="--delay: 0.3s; text-align: center; margin: 0 auto 20px auto; width: 90%; max-width: 800px;">
+                            <label for="theme" style="font-size: 1.2em; padding-bottom: 10px;">生活のテーマ（学習課題）</label>
+                            <select id="theme" name="theme" required
+                                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; box-sizing: border-box; margin-bottom: 20px;">
+                                <option value="" disabled selected>選択してください</option>
+                                <option value="日常生活の指導">日常生活の指導</option>
+                                <option value="遊びの指導">遊びの指導</option>
+                                <option value="生活単元学習">生活単元学習</option>
+                                <option value="作業学習">作業学習</option>
+                                <option value="今回は選択しない">今回は選択しない</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group slide-up" style="--delay: 0.4s; text-align: center; margin: 0 auto 20px auto; width: 90%; max-width: 800px;">
+                            <label for="concerns" style="font-size: 1.2em; padding-bottom: 10px;">先生がいま悩んでいること / 考えたいこと</label>
+                            <textarea id="concerns" name="concerns" placeholder="（例：どのように興味を持たせるか、評価の観点をどうするか）" required 
+                                    style="width: 100%; min-height: 150px; padding: 20px; font-size: 1.1em; box-sizing: border-box;"></textarea>
+                        </div>
+
+                        <div class="form-actions slide-up" style="--delay: 0.5s">
+                            <button type="submit" id="start-btn" class="btn btn-primary">
+                                <span>AIと対話を始める</span>
+                                <div class="btn-shine"></div>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section id="results-section" class="hidden">
+                    <div id="loading-indicator" class="loading-state hidden">
+                        <div class="spinner"></div>
+                        <p>AIが準備中です...</p>
+                    </div>
+                    <div id="ai-response-container"></div>
+                    <div id="error-message-display" class="error-message-display hidden"></div>
+                    
+                    <div id="chat-container" class="chat-interface fade-in hidden">
+                        <div class="chat-header">
+                            <button id="restart-btn" class="btn btn-secondary btn-small">最初からやり直す</button>
+                        </div>
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Chat history will appear here -->
+                        </div>
+                        <div class="chat-input-area">
+                            <textarea id="chat-textarea" placeholder="返答を入力してください…" rows="3"></textarea>
+                            <button id="send-btn" class="btn btn-send">送信</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="main-footer">
+                <p>&copy; 2026 授業づくりAI. 特別支援教育の未来を照らす。</p>
+            </footer>
+        </div>
+
+        <aside id="side-panel" class="side-panel">
+            <div class="side-panel-header">
+                <div class="side-panel-title">
+                    <span class="material-icons">description</span>
+                    <h3 id="side-panel-filename">ソースプレビュー</h3>
+                </div>
+                <button id="close-side-panel" class="close-side-panel" aria-label="パネルを閉じる">
+                    <span class="material-icons">close</span>
+                    <span class="close-label">閉じる</span>
+                </button>
+            </div>
+            <div id="side-panel-content" class="side-panel-content">
+            </div>
+        </aside>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>管理用キー設定</h2>
+            <input type="password" id="api-key-input" placeholder="Claude APIキー（sk-ant-...）を入力してください" autocomplete="off">
+            <button id="api-key-save-btn" class="btn btn-save">保存する</button>
+            <div id="api-key-status" class="api-key-status"></div>
+        </div>
+    </div>
+
+    <script src="knowledge_data.js"></script>
+    <script src="main_claude.js"></script>
+</body>
+</html>
